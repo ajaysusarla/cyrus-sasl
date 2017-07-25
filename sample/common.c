@@ -1,12 +1,12 @@
-/* 
- * Copyright (c) 1998-2016 Carnegie Mellon University.  All rights reserved.
+/*
+ * Copyright (c) 1998-2017 Carnegie Mellon University.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
  *
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer. 
+ *    notice, this list of conditions and the following disclaimer.
  *
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in
@@ -16,7 +16,7 @@
  * 3. The name "Carnegie Mellon University" must not be used to
  *    endorse or promote products derived from this software without
  *    prior written permission. For permission or any other legal
- *    details, please contact  
+ *    details, please contact
  *      Carnegie Mellon University
  *      Center for Technology Transfer and Enterprise Creation
  *      4615 Forbes Avenue
@@ -78,7 +78,7 @@ int recv_string(FILE *f, char *buf, int buflen)
     int c;
     int len, l;
     char *s;
-    
+
     c = fgetc(f);
     if (c != '{') return -1;
 
@@ -136,14 +136,14 @@ int dprintf(int lvl, const char *fmt, ...)
 	va_start(ap, fmt);
 	ret = vfprintf(stdout, fmt, ap);
 	va_end(ap);
-    } 
+    }
 
     return ret;
 }
 
 void saslerr(int why, const char *what)
 {
-  fprintf(stderr, "%s: %s", what, sasl_errstring(why, NULL, NULL));
+    fprintf(stderr, "%s: %s", what, sasl_errstring(why, NULL, NULL));
 }
 
 void saslfail(int why, const char *what)

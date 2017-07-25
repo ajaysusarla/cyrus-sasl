@@ -19,7 +19,7 @@
 #include <netdb.h>
 
 #include <sasl/sasl.h>
-   
+
 #define SUCCESS 0
 #define ERROR   1
 
@@ -50,9 +50,9 @@ void interact(sasl_interact_t *ilist)
 
 int main(int argc __attribute__((unused)), char *argv[])
 {
-    const char *hostname = "localhost";	
+    const char *hostname = "localhost";
     int port = 80;
-	
+
     int sd, rc, status;
     struct sockaddr_in localAddr, servAddr;
     struct hostent *h;
@@ -105,18 +105,18 @@ int main(int argc __attribute__((unused)), char *argv[])
 
     /*  bind port number */
     printf("Bind port number...  ");
-	
+
     localAddr.sin_family = AF_INET;
     localAddr.sin_addr.s_addr = htonl(INADDR_ANY);
     localAddr.sin_port = htons(0);
-  
+
     rc = bind(sd, (struct sockaddr *) &localAddr, sizeof(localAddr));
     if (rc < 0) {
 	printf("%s: cannot bind port TCP %u\n",argv[0],port);
 	perror("error ");
 	exit(ERROR);
     }
-				
+
     /* connect to server */
     printf("Connect to server...\n");
     rc = connect(sd, (struct sockaddr *) &servAddr, sizeof(servAddr));
@@ -183,20 +183,20 @@ int main(int argc __attribute__((unused)), char *argv[])
 
 	    printf("\n-- Send HTTP request:\n\n%s", request);
 	    rc = write(sd, request, strlen(request));
-	    if (rc < 0) {   
+	    if (rc < 0) {
 		perror("cannot send data ");
 		close(sd);
-		exit(ERROR);  
+		exit(ERROR);
 	    }
-	
+
 	    /* display response */
 	    printf("-- Received response:\n\tfrom server: http://%s%s, IP = %s,\n\n",
 		   hostname, httpreq.uri, inet_ntoa(servAddr.sin_addr));
 	    rc = read(sd, buffer, BUFFER_SIZE);
-	    if (rc <= 0) {   
+	    if (rc <= 0) {
 		perror("cannot read data ");
 		close(sd);
-		exit(ERROR);  
+		exit(ERROR);
 	    }
 	    buffer[rc] = '\0';
 

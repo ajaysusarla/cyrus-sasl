@@ -1,12 +1,12 @@
-/* 
- * Copyright (c) 1998-2016 Carnegie Mellon University.  All rights reserved.
+/*
+ * Copyright (c) 1998-2017 Carnegie Mellon University.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
  *
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer. 
+ *    notice, this list of conditions and the following disclaimer.
  *
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in
@@ -16,7 +16,7 @@
  * 3. The name "Carnegie Mellon University" must not be used to
  *    endorse or promote products derived from this software without
  *    prior written permission. For permission or any other legal
- *    details, please contact  
+ *    details, please contact
  *      Carnegie Mellon University
  *      Center for Technology Transfer and Enterprise Creation
  *      4615 Forbes Avenue
@@ -72,17 +72,17 @@ static void chop(char *s)
     assert(s);
     p = s + strlen(s) - 1;
     if (p[0] == '\n') {
-	*p-- = '\0';
+        *p-- = '\0';
     }
     if (p >= s && p[0] == '\r') {
-	*p-- = '\0';
+        *p-- = '\0';
     }
 }
 
-static int getrealm(void *context __attribute__((unused)), 
-		    int id,
-		    const char **availrealms,
-		    const char **result)
+static int getrealm(void *context __attribute__((unused)),
+                    int id,
+                    const char **availrealms,
+                    const char **result)
 {
     static char buf[1024];
 
@@ -92,91 +92,89 @@ static int getrealm(void *context __attribute__((unused)),
 
     printf("please choose a realm (available:");
     while (*availrealms) {
-	printf(" %s", *availrealms);
-	availrealms++;
+        printf(" %s", *availrealms);
+        availrealms++;
     }
     printf("): ");
 
     fgets(buf, sizeof buf, stdin);
     chop(buf);
     *result = buf;
-  
+
     return SASL_OK;
 }
 
 static int simple(void *context __attribute__((unused)),
-		  int id,
-		  const char **result,
-		  unsigned *len)
+                  int id,
+                  const char **result,
+                  unsigned *len)
 {
     static char bufU[1024];
     static char bufA[1024];
     char *b;
 
     /* paranoia check */
-    if (! result)
-	return SASL_BADPARAM;
+    if (!result)
+        return SASL_BADPARAM;
 
     switch (id) {
     case SASL_CB_USER:
-	printf("please enter an authorization id: ");
+        printf("please enter an authorization id: ");
         b = bufU;
-	break;
+        break;
     case SASL_CB_AUTHNAME:
-	printf("please enter an authentication id: ");
+        printf("please enter an authentication id: ");
         b = bufA;
-	break;
+        break;
     default:
-	return SASL_BADPARAM;
+        return SASL_BADPARAM;
     }
 
     fgets(b, 1024, stdin);
     chop(b);
     *result = b;
     if (len) *len = strlen(b);
-  
+
     return SASL_OK;
 }
 
 #ifndef HAVE_GETPASSPHRASE
-static char *
-getpassphrase(const char *prompt)
+static char *getpassphrase(const char *prompt)
 {
   return getpass(prompt);
 }
 #endif /* ! HAVE_GETPASSPHRASE */
 
-static int
-getsecret(sasl_conn_t *conn,
-	  void *context __attribute__((unused)),
-	  int id,
-	  sasl_secret_t **psecret)
+static int getsecret(sasl_conn_t *conn,
+                     void *context __attribute__((unused)),
+                     int id,
+                     sasl_secret_t **psecret)
 {
     char *password;
     size_t len;
     static sasl_secret_t *x;
 
     /* paranoia check */
-    if (! conn || ! psecret || id != SASL_CB_PASS)
-	return SASL_BADPARAM;
+    if (!conn || ! psecret || id != SASL_CB_PASS)
+        return SASL_BADPARAM;
 
     password = getpassphrase("Password: ");
-    if (! password)
-	return SASL_FAIL;
+    if (!password)
+        return SASL_FAIL;
 
     len = strlen(password);
 
     x = (sasl_secret_t *) realloc(x, sizeof(sasl_secret_t) + len);
-  
+
     if (!x) {
-	memset(password, 0, len);
-	return SASL_NOMEM;
+        memset(password, 0, len);
+        return SASL_NOMEM;
     }
 
     x->len = len;
     strcpy((char *)x->data, password);
     memset(password, 0, len);
-    
+
     *psecret = x;
     return SASL_OK;
 }
@@ -207,24 +205,24 @@ int getconn(const char *host, const char *port)
     hints.ai_socktype = SOCK_STREAM;
 
     if ((err = getaddrinfo(host, port, &hints, &ai)) != 0) {
-	fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(err));
-	exit(EX_UNAVAILABLE);
+        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(err));
+        exit(EX_UNAVAILABLE);
     }
 
     for (r = ai; r; r = r->ai_next) {
-	sock = socket(r->ai_family, r->ai_socktype, r->ai_protocol);
-	if (sock < 0)
-	    continue;
-	if (connect(sock, r->ai_addr, r->ai_addrlen) >= 0)
-	    break;
-	close(sock);
-	sock = -1;
+        sock = socket(r->ai_family, r->ai_socktype, r->ai_protocol);
+        if (sock < 0)
+            continue;
+        if (connect(sock, r->ai_addr, r->ai_addrlen) >= 0)
+            break;
+        close(sock);
+        sock = -1;
     }
 
     freeaddrinfo(ai);
     if (sock < 0) {
-	perror("connect");
-	exit(EX_UNAVAILABLE);
+        perror("connect");
+        exit(EX_UNAVAILABLE);
     }
 
     return sock;
@@ -246,22 +244,23 @@ int mysasl_negotiate(FILE *in, FILE *out, sasl_conn_t *conn)
     dprintf(0, "%s\n", buf);
 
     if (mech) {
-	/* make sure that 'mech' appears in 'buf' */
-	if (!strstr(buf, mech)) {
-	    printf("server doesn't offer mandatory mech '%s'\n", mech);
-	    return -1;
-	}
+        /* make sure that 'mech' appears in 'buf' */
+        if (!strstr(buf, mech)) {
+            printf("server doesn't offer mandatory mech '%s'\n", mech);
+            return -1;
+        }
     } else {
-	mech = buf;
+        mech = buf;
     }
 
-    r = sasl_client_start(conn, mech, NULL, &data, (unsigned int *) &len, &chosenmech);
+    r = sasl_client_start(conn, mech, NULL, &data, (unsigned int *) &len,
+                          &chosenmech);
     if (r != SASL_OK && r != SASL_CONTINUE) {
-	saslerr(r, "starting SASL negotiation");
-	printf("\n%s\n", sasl_errdetail(conn));
-	return -1;
+        saslerr(r, "starting SASL negotiation");
+        printf("\n%s\n", sasl_errdetail(conn));
+        return -1;
     }
-    
+
     dprintf(1, "using mechanism %s\n", chosenmech);
 
     /* we send up to 3 strings;
@@ -269,46 +268,46 @@ int mysasl_negotiate(FILE *in, FILE *out, sasl_conn_t *conn)
        and optionally the initial response */
     send_string(out, chosenmech, strlen(chosenmech));
     if(data) {
-	send_string(out, "Y", 1);
-	send_string(out, data, len);
+        send_string(out, "Y", 1);
+        send_string(out, data, len);
     } else {
-	send_string(out, "N", 1);
+        send_string(out, "N", 1);
     }
 
     for (;;) {
-	dprintf(2, "waiting for server reply...\n");
+        dprintf(2, "waiting for server reply...\n");
 
-	c = fgetc(in);
-	switch (c) {
-	case 'O':
-	    goto done_ok;
+        c = fgetc(in);
+        switch (c) {
+        case 'O':
+            goto done_ok;
 
-	case 'N':
-	    goto done_no;
+        case 'N':
+            goto done_no;
 
-	case 'C': /* continue authentication */
-	    break;
+       case 'C': /* continue authentication */
+           break;
 
-	default:
-	    printf("bad protocol from server (%c %x)\n", c, c);
-	    return -1;
-	}
-	len = recv_string(in, buf, sizeof buf);
+       default:
+           printf("bad protocol from server (%c %x)\n", c, c);
+           return -1;
+        }
+        len = recv_string(in, buf, sizeof buf);
 
-	r = sasl_client_step(conn, buf, len, NULL, &data, (unsigned int *) &len);
-	if (r != SASL_OK && r != SASL_CONTINUE) {
-	    saslerr(r, "performing SASL negotiation");
-	    printf("\n%s\n", sasl_errdetail(conn));
-	    return -1;
-	}
+        r = sasl_client_step(conn, buf, len, NULL, &data, (unsigned int *) &len);
+        if (r != SASL_OK && r != SASL_CONTINUE) {
+            saslerr(r, "performing SASL negotiation");
+            printf("\n%s\n", sasl_errdetail(conn));
+            return -1;
+        }
 
-	if (data) {
-	    dprintf(2, "sending response length %d...\n", len);
-	    send_string(out, data, len);
-	} else {
-	    dprintf(2, "sending null response...\n");
-	    send_string(out, "", 0);
-	}
+        if (data) {
+            dprintf(2, "sending response length %d...\n", len);
+            send_string(out, data, len);
+        } else {
+            dprintf(2, "sending null response...\n");
+            send_string(out, "", 0);
+        }
     }
 
  done_ok:
@@ -332,7 +331,7 @@ int main(int argc, char *argv[])
     char *host = "localhost";
     char *port = "12345";
     char localaddr[NI_MAXHOST + NI_MAXSERV],
-	remoteaddr[NI_MAXHOST + NI_MAXSERV];
+        remoteaddr[NI_MAXHOST + NI_MAXSERV];
     char *service = "rcmd";
     char hbuf[NI_MAXHOST], pbuf[NI_MAXSERV];
     int r;
@@ -346,38 +345,38 @@ int main(int argc, char *argv[])
     sasl_channel_binding_t cb;
 
     while ((c = getopt(argc, argv, "Ccp:s:m:")) != EOF) {
-	switch(c) {
-	case 'C':
-	    cb_flag = 2;    /* channel bindings are critical */
-	    break;
+        switch(c) {
+        case 'C':
+            cb_flag = 2;    /* channel bindings are critical */
+            break;
 
-	case 'c':
-	    cb_flag = 1;    /* channel bindings are optional */
-	    break;
+        case 'c':
+            cb_flag = 1;    /* channel bindings are optional */
+            break;
 
-	case 'p':
-	    port = optarg;
-	    break;
+        case 'p':
+            port = optarg;
+            break;
 
-	case 's':
-	    service = optarg;
-	    break;
+        case 's':
+            service = optarg;
+            break;
 
-	case 'm':
-	    mech = optarg;
-	    break;
+        case 'm':
+            mech = optarg;
+            break;
 
-	default:
-	    usage();
-	    break;
-	}
+        default:
+            usage();
+            break;
+        }
     }
 
     if (optind > argc - 1) {
-	usage();
+        usage();
     }
     if (optind == argc - 1) {
-	host = argv[optind];
+        host = argv[optind];
     }
 
     /* initialize the sasl library */
@@ -390,7 +389,7 @@ int main(int argc, char *argv[])
     /* set ip addresses */
     salen = sizeof(local_ip);
     if (getsockname(fd, (struct sockaddr *)&local_ip, (unsigned int*) &salen) < 0) {
-	perror("getsockname");
+        perror("getsockname");
     }
 
     niflags = (NI_NUMERICHOST | NI_NUMERICSERV);
@@ -399,33 +398,33 @@ int main(int argc, char *argv[])
       niflags |= NI_WITHSCOPEID;
 #endif
     error = getnameinfo((struct sockaddr *)&local_ip, salen,
-			hbuf, sizeof(hbuf), pbuf, sizeof(pbuf), niflags);
+                        hbuf, sizeof(hbuf), pbuf, sizeof(pbuf), niflags);
     if (error != 0) {
-	fprintf(stderr, "getnameinfo: %s\n", gai_strerror(error));
-	strcpy(hbuf, "unknown");
-	strcpy(pbuf, "unknown");
+        fprintf(stderr, "getnameinfo: %s\n", gai_strerror(error));
+        strcpy(hbuf, "unknown");
+        strcpy(pbuf, "unknown");
     }
     snprintf(localaddr, sizeof(localaddr), "%s;%s", hbuf, pbuf);
 
     salen = sizeof(remote_ip);
     if (getpeername(fd, (struct sockaddr *)&remote_ip, (unsigned int *) &salen) < 0) {
-	perror("getpeername");
+        perror("getpeername");
     }
 
     niflags = (NI_NUMERICHOST | NI_NUMERICSERV);
 #ifdef NI_WITHSCOPEID
     if (((struct sockaddr *)&remote_ip)->sa_family == AF_INET6)
-	niflags |= NI_WITHSCOPEID;
+        niflags |= NI_WITHSCOPEID;
 #endif
     error = getnameinfo((struct sockaddr *)&remote_ip, salen,
-			hbuf, sizeof(hbuf), pbuf, sizeof(pbuf), niflags);
+                        hbuf, sizeof(hbuf), pbuf, sizeof(pbuf), niflags);
     if (error != 0) {
-	fprintf(stderr, "getnameinfo: %s\n", gai_strerror(error));
-	strcpy(hbuf, "unknown");
-	strcpy(pbuf, "unknown");
+        fprintf(stderr, "getnameinfo: %s\n", gai_strerror(error));
+        strcpy(hbuf, "unknown");
+        strcpy(pbuf, "unknown");
     }
     snprintf(remoteaddr, sizeof(remoteaddr), "%s;%s", hbuf, pbuf);
-    
+
     /* client new connection */
     r = sasl_client_new(service, host, localaddr, remoteaddr, NULL, 0, &conn);
     if (r != SASL_OK) saslfail(r, "allocating connection state");
@@ -451,11 +450,9 @@ int main(int argc, char *argv[])
 
     r = mysasl_negotiate(in, out, conn);
     if (r == SASL_OK) {
-	/* send/receive data */
-	
-	
+        /* send/receive data */
     }
-    
+
     printf("closing connection\n");
     fclose(in);
     fclose(out);

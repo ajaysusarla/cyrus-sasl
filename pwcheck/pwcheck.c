@@ -1,14 +1,14 @@
 /* pwcheck.c -- Unix pwcheck daemon
  */
 /*
- * Copyright (c) 1998-2016 Carnegie Mellon University.  All rights reserved.
+ * Copyright (c) 1998-2017 Carnegie Mellon University.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
  *
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer. 
+ *    notice, this list of conditions and the following disclaimer.
  *
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in
@@ -18,7 +18,7 @@
  * 3. The name "Carnegie Mellon University" must not be used to
  *    endorse or promote products derived from this software without
  *    prior written permission. For permission or any other legal
- *    details, please contact  
+ *    details, please contact
  *      Carnegie Mellon University
  *      Center for Technology Transfer and Enterprise Creation
  *      4615 Forbes Avenue
@@ -74,8 +74,7 @@ int retry_write(int, const char *, unsigned int);
  * Unix pwcheck daemon-authenticated login (shadow password)
  */
 
-int
-main()
+int main(void)
 {
     char fnamebuf[MAXPATHLEN];
     int s;
@@ -96,24 +95,25 @@ main()
     /* Daemonize. */
     count = 5;
     while (count--) {
-	pid = fork();
-            
-	if (pid > 0)
-	    _exit(0);               /* parent dies */
-            
-	if ((pid == -1) && (errno == EAGAIN)) {
-	    syslog(LOG_WARNING, "master fork failed (sleeping): %m");
-	    sleep(5);
-	    continue;
-	}
+        pid = fork();
+
+        if (pid > 0)
+            _exit(0);               /* parent dies */
+
+        if ((pid == -1) && (errno == EAGAIN)) {
+            syslog(LOG_WARNING, "master fork failed (sleeping): %m");
+            sleep(5);
+            continue;
+        }
     }
+
     if (pid == -1) {
-	rc = errno;
-	syslog(LOG_ERR, "FATAL: master fork failed: %m");
-	fprintf(stderr, "pwcheck: ");
-	errno = rc;
-	perror("fork");
-	exit(1);
+        rc = errno;
+        syslog(LOG_ERR, "FATAL: master fork failed: %m");
+        fprintf(stderr, "pwcheck: ");
+        errno = rc;
+        perror("fork");
+        exit(1);
     }
 
     /*
@@ -121,29 +121,28 @@ main()
      * and obtain a new process group.
      */
     if (setsid() == -1) {
-	rc = errno;
-	syslog(LOG_ERR, "FATAL: setsid: %m");
-	fprintf(stderr, "pwcheck: ");
-	errno = rc;
-	perror("setsid");
-	exit(1);
+        rc = errno;
+        syslog(LOG_ERR, "FATAL: setsid: %m");
+        fprintf(stderr, "pwcheck: ");
+        errno = rc;
+        perror("setsid");
+        exit(1);
     }
-        
+
     s = open("/dev/null", O_RDWR, 0);
     if (s == -1) {
-	rc = errno;
-	syslog(LOG_ERR, "FATAL: /dev/null: %m");
-	fprintf(stderr, "pwcheck: ");
-	errno = rc;
-	perror("/dev/null");
-	exit(1);
-            
+        rc = errno;
+        syslog(LOG_ERR, "FATAL: /dev/null: %m");
+        fprintf(stderr, "pwcheck: ");
+        errno = rc;
+        perror("/dev/null");
+        exit(1);
     }
     dup2(s, fileno(stdin));
     dup2(s, fileno(stdout));
     dup2(s, fileno(stderr));
     if (s > 2) {
-	close(s);
+        close(s);
     }
 
     /*
@@ -151,7 +150,7 @@ main()
      */
     pid = getpid();
     if (pid_file) {
-	fp = fopen(pid_file, "w");
+        fp = fopen(pid_file, "w");
     }
     if (fp) {
         fprintf(fp, "%ld\n", (long)pid);
@@ -162,13 +161,13 @@ main()
 
     s = socket(AF_UNIX, SOCK_STREAM, 0);
     if (s == -1) {
-	perror("socket");
-	exit(1);
+        perror("socket");
+        exit(1);
     }
 
     strncpy(fnamebuf, PWCHECKDIR, sizeof(fnamebuf));
     strncpy(fnamebuf + sizeof(PWCHECKDIR)-1, "/pwcheck",
-	    sizeof(fnamebuf) - sizeof(PWCHECKDIR));
+            sizeof(fnamebuf) - sizeof(PWCHECKDIR));
     fnamebuf[MAXPATHLEN-1] = '\0';
 
     (void) unlink(fnamebuf);
@@ -182,28 +181,28 @@ main()
 			    setting up the socket */
     r = bind(s, (struct sockaddr *)&srvaddr, sizeof(srvaddr));
     if (r == -1) {
-	syslog(LOG_ERR, "%.*s: %m",
-	       sizeof(srvaddr.sun_path), srvaddr.sun_path);
-	exit(1);
+        syslog(LOG_ERR, "%.*s: %m",
+               sizeof(srvaddr.sun_path), srvaddr.sun_path);
+        exit(1);
     }
     umask(oldumask); /* for Linux */
     chmod(fnamebuf, (mode_t) 0777); /* for DUX, where this isn't the default.
-				    (harmlessly fails on some systems) */	
+				    (harmlessly fails on some systems) */
     r = listen(s, 5);
     if (r == -1) {
-	syslog(LOG_ERR, "listen: %m");
-	exit(1);
+        syslog(LOG_ERR, "listen: %m");
+        exit(1);
     }
 
     for (;;) {
-	len = sizeof(clientaddr);
-	c = accept(s, (struct sockaddr *)&clientaddr, &len);
-	if (c == -1 && errno != EINTR) {
-	    syslog(LOG_WARNING, "accept: %m");
-	    continue;
-	}
+        len = sizeof(clientaddr);
+        c = accept(s, (struct sockaddr *)&clientaddr, &len);
+        if (c == -1 && errno != EINTR) {
+            syslog(LOG_WARNING, "accept: %m");
+            continue;
+        }
 
-	newclient(c);
+        newclient(c);
     }
 }
 
@@ -214,27 +213,27 @@ void newclient(int c)
     unsigned int start;
     char *reply;
     extern char *pwcheck();
-    
+
     start = 0;
     while (start < sizeof(request) - 1) {
-	n = read(c, request+start, sizeof(request) - 1 - start);
-	if (n < 1) {
-	    reply = "Error reading request";
-	    goto sendreply;
-	}
-		
-	start += n;
+        n = read(c, request+start, sizeof(request) - 1 - start);
+        if (n < 1) {
+            reply = "Error reading request";
+            goto sendreply;
+        }
 
-	if (request[start-1] == '\0' && strlen(request) < start) {
-	    break;
-	}
+        start += n;
+
+        if (request[start-1] == '\0' && strlen(request) < start) {
+            break;
+        }
     }
 
     if (start >= sizeof(request) - 1) {
-	reply = "Request too big";
+        reply = "Request too big";
     }
     else {
-	reply = pwcheck(request, request + strlen(request) + 1);
+        reply = pwcheck(request, request + strlen(request) + 1);
     }
 
 sendreply:
@@ -242,7 +241,7 @@ sendreply:
     retry_write(c, reply, strlen(reply));
     close(c);
 }
-  
+
 /*
  * Keep calling the write() system call with 'fd', 'buf', and 'nbyte'
  * until all the data is written out or an error occurs.
@@ -253,20 +252,20 @@ int retry_write(int fd, const char *buf, unsigned int nbyte)
     int written = 0;
 
     if (nbyte == 0)
-	return 0;
+        return 0;
 
     for (;;) {
         n = write(fd, buf, nbyte);
         if (n == -1) {
             if (errno == EINTR)
-		continue;
+                continue;
             return -1;
         }
 
         written += n;
 
         if ((unsigned int) n >= nbyte)
-	    return written;
+            return written;
 
         buf += n;
         nbyte -= n;

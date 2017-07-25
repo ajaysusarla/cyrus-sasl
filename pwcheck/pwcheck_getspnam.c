@@ -1,14 +1,14 @@
 /* pwcheck_getspnam.c -- check passwords using getspnam()
  */
 /*
- * Copyright (c) 1998-2016 Carnegie Mellon University.  All rights reserved.
+ * Copyright (c) 1998-2017 Carnegie Mellon University.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
  *
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer. 
+ *    notice, this list of conditions and the following disclaimer.
  *
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in
@@ -18,7 +18,7 @@
  * 3. The name "Carnegie Mellon University" must not be used to
  *    endorse or promote products derived from this software without
  *    prior written permission. For permission or any other legal
- *    details, please contact  
+ *    details, please contact
  *      Carnegie Mellon University
  *      Center for Technology Transfer and Enterprise Creation
  *      4615 Forbes Avenue
@@ -45,23 +45,21 @@
 
 extern char *crypt();
 
-char *pwcheck(userid, password)
-char *userid;
-char *password;
+char *pwcheck(char *userid, char *password)
 {
     struct spwd *pwd;
     char *crpt_passwd;
 
     pwd = getspnam(userid);
     if (!pwd) {
-	return "Userid not found";
+        return "Userid not found";
     }
-    
+
     crpt_passwd = crypt(password, pwd->sp_pwdp);
     if (!crpt_passwd || strcmp(pwd->sp_pwdp, (const char *)crpt_passwd) != 0) {
-	return "Incorrect password";
+        return "Incorrect password";
     }
     else {
-	return "OK";
+        return "OK";
     }
 }

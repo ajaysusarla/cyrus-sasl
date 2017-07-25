@@ -1,12 +1,12 @@
-/* 
- * Copyright (c) 1998-2016 Carnegie Mellon University.  All rights reserved.
+/*
+ * Copyright (c) 1998-2017 Carnegie Mellon University.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
  *
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer. 
+ *    notice, this list of conditions and the following disclaimer.
  *
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in
@@ -16,7 +16,7 @@
  * 3. The name "Carnegie Mellon University" must not be used to
  *    endorse or promote products derived from this software without
  *    prior written permission. For permission or any other legal
- *    details, please contact  
+ *    details, please contact
  *      Carnegie Mellon University
  *      Center for Technology Transfer and Enterprise Creation
  *      4615 Forbes Avenue
@@ -145,7 +145,7 @@ int *listensock(const char *port, const int af)
 	    perror("socket");
 	    continue;
 	}
-	if (setsockopt(*sock, SOL_SOCKET, SO_REUSEADDR, 
+	if (setsockopt(*sock, SOL_SOCKET, SO_REUSEADDR,
 		       (void *) &on, sizeof(on)) < 0) {
 	    perror("setsockopt(SO_REUSEADDR)");
 	    close(*sock);
@@ -209,7 +209,7 @@ int mysasl_negotiate(FILE *in, FILE *out, sasl_conn_t *conn)
 #ifdef HAVE_GSS_GET_NAME_ATTRIBUTE
     gss_name_t peer = GSS_C_NO_NAME;
 #endif
-    
+
     /* generate the capability list */
     if (mech) {
 	dprintf(2, "forcing use of mechanism %s\n", mech);
@@ -265,7 +265,7 @@ int mysasl_negotiate(FILE *in, FILE *out, sasl_conn_t *conn)
 	r = sasl_server_start(conn, chosenmech, NULL, 0,
 			      &data, (unsigned int *) &len);
     }
-    
+
     if (r != SASL_OK && r != SASL_CONTINUE) {
 	saslerr(r, "starting SASL negotiation");
 	fputc('N', out); /* send NO to client */
@@ -406,7 +406,7 @@ int main(int argc, char *argv[])
 	    continue;
 	}
 
-       for (i = 1; i <= l[0]; i++) 
+       for (i = 1; i <= l[0]; i++)
            if (FD_ISSET(l[i], &readfds)) {
                fd = accept(l[i], NULL, NULL);
                break;
@@ -504,10 +504,7 @@ int main(int argc, char *argv[])
 }
 
 #ifdef HAVE_GSS_GET_NAME_ATTRIBUTE
-static void displayStatus_1(m, code, type)
-    char *m;
-    OM_uint32 code;
-    int type;
+static void displayStatus_1(char *m, OM_uint32 code, int type)
 {
     OM_uint32 maj_stat, min_stat;
     gss_buffer_desc msg;
@@ -526,20 +523,15 @@ static void displayStatus_1(m, code, type)
     }
 }
 
-static void displayStatus(msg, maj_stat, min_stat)
-    char *msg;
-    OM_uint32 maj_stat;
-    OM_uint32 min_stat;
+static void displayStatus(char *msg, OM_uint32 maj_stat, OM_uint32 min_stat)
+
 {
     displayStatus_1(msg, maj_stat, GSS_C_GSS_CODE);
     displayStatus_1(msg, min_stat, GSS_C_MECH_CODE);
 }
 
-static void
-dumpAttribute(OM_uint32 *minor,
-              gss_name_t name,
-              gss_buffer_t attribute,
-              int noisy)
+static void dumpAttribute(OM_uint32 *minor, gss_name_t name,
+                          gss_buffer_t attribute, int noisy)
 {
     OM_uint32 major, tmp;
     gss_buffer_desc value;
@@ -586,10 +578,8 @@ dumpAttribute(OM_uint32 *minor,
     }
 }
 
-static OM_uint32
-enumerateAttributes(OM_uint32 *minor,
-                    gss_name_t name,
-                    int noisy)
+static OM_uint32 enumerateAttributes(OM_uint32 *minor, gss_name_t name,
+                                     int noisy)
 {
     OM_uint32 major, tmp;
     int name_is_MN;
